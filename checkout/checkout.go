@@ -50,3 +50,19 @@ func (c Checkout) Scan(s string) error {
 	c.basket[upperCaseInput] = count + 1
 	return nil
 }
+
+func (c Checkout) GetTotalPrice() (int, error) {
+	basketTotal := 0
+
+	for item, count := range c.basket {
+		storeItem, err := c.store.Get(item)
+		if err != nil {
+			return 0, err
+		}
+
+		itemTotal := storeItem.value * count
+		basketTotal += itemTotal
+	}
+
+	return basketTotal, nil
+}

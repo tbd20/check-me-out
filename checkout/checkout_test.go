@@ -14,8 +14,19 @@ func (c testScanStoreChecker) Get(s string) (StoreItem, error) {
 	}
 
 	return StoreItem{}, nil
-
 }
+
+type basicTestGetForTotalPrice struct{}
+
+func (b basicTestGetForTotalPrice) Get(s string) (StoreItem, error) {
+	outputStoreItem := StoreItem{
+		sku:          s,
+		value:        int(s[0]-'A') + 1,
+		specialOffer: nil,
+	}
+	return outputStoreItem, nil
+}
+
 func TestScan(t *testing.T) {
 
 	t.Run("Add one item successfully", func(t *testing.T) {
@@ -151,4 +162,30 @@ func TestScan(t *testing.T) {
 		}
 
 	})
+}
+
+func TestGetTotalPrice(t *testing.T) {
+
+	t.Run("Add one item and succesfully and get total price", func(t *testing.T) {
+		store := basicTestGetForTotalPrice{}
+		checkout := NewCheckout(store)
+
+		err := checkout.Scan("A")
+		if err != nil {
+			t.Errorf("Should not error")
+			return
+		}
+
+		got, err := checkout.GetTotalPrice()
+		if err != nil {
+			t.Errorf("Should not error")
+			return
+		}
+		want := 1
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("Error in testing: got %v, want %v", got, want)
+		}
+	})
+
 }
