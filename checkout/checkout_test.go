@@ -217,4 +217,33 @@ func TestGetTotalPrice(t *testing.T) {
 		}
 	})
 
+	t.Run("Add same item multiple times with no offer gets the correct price", func(t *testing.T) {
+		store := basicTestGetForTotalPrice{}
+		checkout := NewCheckout(store)
+
+		items := []string{
+			"A",
+			"A",
+			"A",
+		}
+
+		for i := range items {
+			err := checkout.Scan(items[i])
+			if err != nil {
+				t.Errorf("Should not error")
+			}
+		}
+
+		got, err := checkout.GetTotalPrice()
+		if err != nil {
+			t.Errorf("Should not error")
+			return
+		}
+		want := 3
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("Error in testing: got %v, want %v", got, want)
+		}
+	})
+
 }
