@@ -1,5 +1,7 @@
 package checkout
 
+import "strings"
+
 type Checkout struct {
 	basket map[string]int
 }
@@ -10,12 +12,13 @@ func NewCheckout() *Checkout {
 }
 
 func (c Checkout) Scan(s string) error {
-	count, ok := c.basket[s]
+	upperCaseInput := strings.ToUpper(s)
+	count, ok := c.basket[upperCaseInput]
 	if !ok {
-		c.basket[s] = 1
+		c.basket[upperCaseInput] = 1
 		return nil
 	}
 
-	c.basket[s] = count + 1
+	c.basket[upperCaseInput] = count + 1
 	return nil
 }
