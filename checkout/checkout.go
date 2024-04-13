@@ -60,7 +60,17 @@ func (c Checkout) GetTotalPrice() (int, error) {
 			return 0, err
 		}
 
-		itemTotal := storeItem.value * count
+		itemTotal := 0
+
+		if storeItem.specialOffer != nil {
+			for count >= storeItem.specialOffer.threshold {
+				itemTotal += storeItem.specialOffer.thresholdAmountValue
+				count -= storeItem.specialOffer.threshold
+
+			}
+		}
+
+		itemTotal += storeItem.value * count
 		basketTotal += itemTotal
 	}
 

@@ -33,6 +33,21 @@ func (b errorTestGetTotalForPrice) Get(s string) (StoreItem, error) {
 	return StoreItem{}, errors.New("error in get")
 }
 
+type specialOfferTestGetTotalForPrice struct{}
+
+func (store specialOfferTestGetTotalForPrice) Get(s string) (StoreItem, error) {
+	charValue := int(s[0]-'A') + 1
+	outputStoreItem := StoreItem{
+		sku:   s,
+		value: charValue,
+		specialOffer: &SpecialOffer{
+			threshold:            charValue * 100,
+			thresholdAmountValue: charValue * 10,
+		},
+	}
+	return outputStoreItem, nil
+}
+
 func TestScan(t *testing.T) {
 	t.Run("Add one item successfully", func(t *testing.T) {
 		store := testScanStoreChecker{}
@@ -301,6 +316,29 @@ func TestGetTotalPrice(t *testing.T) {
 		}
 		got := err.Error()
 		want := errors.New("error in get").Error()
+
+		if got != want {
+			t.Errorf("Error in testing: got %v, want %v", got, want)
+		}
+	})
+
+	t.Run("Adding enough of one item to get special offer results in correct price", func(t *testing.T) {
+		store := specialOfferTestGetTotalForPrice{}
+		checkout := NewCheckout(store)
+
+		for i := range 100 {
+			err := checkout.Scan("A")
+			if err != nil {
+				t.Errorf("Should not error: errored on iteration %v", i)
+			}
+		}
+
+		got, err := checkout.GetTotalPrice()
+		if err != nil {
+			t.Errorf("Should not error")
+			return
+		}
+		want := 10
 
 		if got != want {
 			t.Errorf("Error in testing: got %v, want %v", got, want)
