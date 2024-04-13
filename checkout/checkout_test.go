@@ -6,9 +6,21 @@ import (
 	"testing"
 )
 
+type testScanStoreChecker struct{}
+
+func (c testScanStoreChecker) Get(s string) (StoreItem, error) {
+	if s == "X" {
+		return StoreItem{}, errors.New("scanned item is not in the store")
+	}
+
+	return StoreItem{}, nil
+
+}
 func TestScan(t *testing.T) {
+
 	t.Run("Add one item successfully", func(t *testing.T) {
-		checkout := NewCheckout()
+		store := testScanStoreChecker{}
+		checkout := NewCheckout(store)
 
 		err := checkout.Scan("A")
 		if err != nil {
@@ -26,7 +38,8 @@ func TestScan(t *testing.T) {
 	})
 
 	t.Run("Add one item successfully - ignoring case of input", func(t *testing.T) {
-		checkout := NewCheckout()
+		store := testScanStoreChecker{}
+		checkout := NewCheckout(store)
 
 		err := checkout.Scan("a")
 		if err != nil {
@@ -44,11 +57,13 @@ func TestScan(t *testing.T) {
 	})
 
 	t.Run("Fails as input is too long", func(t *testing.T) {
-		checkout := NewCheckout()
+		store := testScanStoreChecker{}
+		checkout := NewCheckout(store)
 
 		err := checkout.Scan("Scanning error")
 		if err == nil {
 			t.Errorf("Should error on account of being too long")
+			return
 		}
 
 		got := err.Error()
@@ -60,7 +75,8 @@ func TestScan(t *testing.T) {
 	})
 
 	t.Run("Adding many of one item", func(t *testing.T) {
-		checkout := NewCheckout()
+		store := testScanStoreChecker{}
+		checkout := NewCheckout(store)
 
 		items := []string{
 			"A",
@@ -86,7 +102,8 @@ func TestScan(t *testing.T) {
 	})
 
 	t.Run("Adding many different items out of order", func(t *testing.T) {
-		checkout := NewCheckout()
+		store := testScanStoreChecker{}
+		checkout := NewCheckout(store)
 
 		items := []string{
 			"A",
@@ -115,4 +132,23 @@ func TestScan(t *testing.T) {
 		}
 	})
 
+	t.Run("Scanning items that are not in the store will return error", func(t *testing.T) {
+		store := testScanStoreChecker{}
+		checkout := NewCheckout(store)
+
+		//item X will not be one of the store's available items. Thus you cannot scan it.
+		err := checkout.Scan("X")
+		if err == nil {
+			t.Errorf("Should error on account of item not being in stock")
+			return
+		}
+
+		got := err.Error()
+		want := errors.New("scanned item is not in the store").Error()
+
+		if got != want {
+			t.Errorf("Error in testing: got %v, want %v", got, want)
+		}
+
+	})
 }
