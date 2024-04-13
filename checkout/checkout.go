@@ -1,6 +1,9 @@
 package checkout
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
 
 type Checkout struct {
 	basket map[string]int
@@ -12,6 +15,9 @@ func NewCheckout() *Checkout {
 }
 
 func (c Checkout) Scan(s string) error {
+	if len(s) != 1 {
+		return errors.New("input is too long")
+	}
 	upperCaseInput := strings.ToUpper(s)
 	count, ok := c.basket[upperCaseInput]
 	if !ok {
