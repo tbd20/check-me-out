@@ -344,4 +344,27 @@ func TestGetTotalPrice(t *testing.T) {
 			t.Errorf("Error in testing: got %v, want %v", got, want)
 		}
 	})
+
+	t.Run("Adding one more than threshold results in special price + 1 unit price", func(t *testing.T) {
+		store := specialOfferTestGetTotalForPrice{}
+		checkout := NewCheckout(store)
+
+		for i := range 101 {
+			err := checkout.Scan("A")
+			if err != nil {
+				t.Errorf("Should not error: errored on iteration %v", i)
+			}
+		}
+
+		got, err := checkout.GetTotalPrice()
+		if err != nil {
+			t.Errorf("Should not error")
+			return
+		}
+		want := 11
+
+		if got != want {
+			t.Errorf("Error in testing: got %v, want %v", got, want)
+		}
+	})
 }
