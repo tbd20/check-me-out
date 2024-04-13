@@ -48,6 +48,24 @@ func (store specialOfferTestGetTotalForPrice) Get(s string) (StoreItem, error) {
 	return outputStoreItem, nil
 }
 
+type statefulGetTotalForPriceStore struct {
+	items map[string]StoreItem
+}
+
+func (store statefulGetTotalForPriceStore) Get(s string) (StoreItem, error) {
+	storeItem, ok := store.items[s]
+	if !ok {
+		return StoreItem{}, errors.New("not found")
+	}
+
+	return storeItem, nil
+}
+
+func (store statefulGetTotalForPriceStore) Set(s string, storeItem StoreItem) {
+	store.items[s] = storeItem
+
+}
+
 func TestScan(t *testing.T) {
 	t.Run("Add one item successfully", func(t *testing.T) {
 		store := testScanStoreChecker{}
@@ -426,5 +444,40 @@ func TestGetTotalPrice(t *testing.T) {
 		if got != want {
 			t.Errorf("Error in testing: got %v, want %v", got, want)
 		}
+	})
+
+	t.Run("Add one item and then changing prices results in new price when total called", func(t *testing.T) {
+		store := statefulGetTotalForPriceStore{items: make(map[string]StoreItem)}
+		store.Set("A", StoreItem{sku: "A", value: 1})
+		checkout := NewCheckout(store)
+
+		err := checkout.Scan("A")
+		if err != nil {
+			t.Errorf("Should not error")
+			return
+		}
+
+		got, err := checkout.GetTotalPrice()
+		if err != nil {
+			t.Errorf("Should not error")
+			return
+		}
+		want := 1
+
+		if got != want {
+			t.Errorf("Error in testing: got %v, want %v", got, want)
+		}
+
+		store.Set("A", StoreItem{sku: "A", value: 10})
+		got, err = checkout.GetTotalPrice()
+		if err != nil {
+			t.Errorf("Should not error")
+			return
+		}
+		want = 10
+		if got != want {
+			t.Errorf("Error in testing: got %v, want %v", got, want)
+		}
+
 	})
 }
