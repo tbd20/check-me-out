@@ -85,4 +85,34 @@ func TestScan(t *testing.T) {
 		}
 	})
 
+	t.Run("Adding many different items out of order", func(t *testing.T) {
+		checkout := NewCheckout()
+
+		items := []string{
+			"A",
+			"B",
+			"A",
+			"C",
+			"B",
+		}
+
+		for i := range items {
+			err := checkout.Scan(items[i])
+			if err != nil {
+				t.Errorf("Should not error")
+			}
+		}
+
+		got := checkout.basket
+		want := map[string]int{
+			"A": 2,
+			"B": 2,
+			"C": 1,
+		}
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("Error in testing: got %v, want %v", got, want)
+		}
+	})
+
 }
