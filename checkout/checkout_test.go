@@ -59,4 +59,30 @@ func TestScan(t *testing.T) {
 		}
 	})
 
+	t.Run("Adding many of one item", func(t *testing.T) {
+		checkout := NewCheckout()
+
+		items := []string{
+			"A",
+			"A",
+			"A",
+		}
+
+		for i := range items {
+			err := checkout.Scan(items[i])
+			if err != nil {
+				t.Errorf("Should not error")
+			}
+		}
+
+		got := checkout.basket
+		want := map[string]int{
+			"A": len(items),
+		}
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("Error in testing: got %v, want %v", got, want)
+		}
+	})
+
 }
