@@ -28,7 +28,6 @@ func (b basicTestGetForTotalPrice) Get(s string) (StoreItem, error) {
 }
 
 func TestScan(t *testing.T) {
-
 	t.Run("Add one item successfully", func(t *testing.T) {
 		store := testScanStoreChecker{}
 		checkout := NewCheckout(store)
@@ -246,4 +245,34 @@ func TestGetTotalPrice(t *testing.T) {
 		}
 	})
 
+	t.Run("Adding multiple items out of order gets the correct price", func(t *testing.T) {
+		store := basicTestGetForTotalPrice{}
+		checkout := NewCheckout(store)
+
+		items := []string{
+			"A",
+			"B",
+			"C",
+			"A",
+			"A",
+		}
+
+		for i := range items {
+			err := checkout.Scan(items[i])
+			if err != nil {
+				t.Errorf("Should not error")
+			}
+		}
+
+		got, err := checkout.GetTotalPrice()
+		if err != nil {
+			t.Errorf("Should not error")
+			return
+		}
+		want := 8
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("Error in testing: got %v, want %v", got, want)
+		}
+	})
 }
