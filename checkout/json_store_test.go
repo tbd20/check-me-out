@@ -43,4 +43,21 @@ func TestJsonStore(t *testing.T) {
 			t.Errorf("Error in testing: got %v, want %v", got, want)
 		}
 	})
+
+	t.Run("Test new Json store - With no special offers", func(t *testing.T) {
+		filePath := "../testFiles/noSpecialOffers.json"
+		store, err := NewJsonStore(filePath)
+		if err != nil {
+			t.Errorf("Error - reading file should not fail")
+		}
+
+		got := store.items
+		want := map[string]StoreItem{
+			"C": {sku: "C", value: 20},
+			"D": {sku: "D", value: 15},
+		}
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("Error in testing: got %v, want %v", got, want)
+		}
+	})
 }
