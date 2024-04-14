@@ -1,0 +1,26 @@
+[
+    {
+        "sku": "A",
+        "value": 50,
+        "specialOffer": {
+            "threshold": 3,
+            "thresholdAmountValue": 130
+        }
+    },
+    {
+        "sku": "B",
+        "value": 30,
+        "specialOffer": {
+            "threshold": 2,
+            "thresholdAmountValue": 45
+        }
+    },
+    {
+        "sku": "C",
+        "value": 20
+    },
+    {
+        "sku": "D",
+        "value": 15
+    }
+]

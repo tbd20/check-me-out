@@ -48,6 +48,14 @@ func NewJsonStore(filePath string) (*JsonStore, error) {
 			value: item.Value,
 		}
 
+		if item.SpecialOffer.Threshold != 0 {
+			specialOffer := SpecialOffer{
+				threshold:            item.SpecialOffer.Threshold,
+				thresholdAmountValue: item.SpecialOffer.ThresholdAmountValue,
+			}
+			storeItem.specialOffer = &specialOffer
+		}
+
 		jsonStore.Set(item.Sku, storeItem)
 
 	}
