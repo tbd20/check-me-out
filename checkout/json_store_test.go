@@ -60,4 +60,12 @@ func TestJsonStore(t *testing.T) {
 			t.Errorf("Error in testing: got %v, want %v", got, want)
 		}
 	})
+	t.Run("Test new Json store - Error in reading file", func(t *testing.T) {
+		filePath := "../testFiles/notValidJson.json"
+		_, err := NewJsonStore(filePath)
+		if err == nil {
+			t.Errorf("Error - reading file should not fail")
+		}
+
+	})
 }
